@@ -1,22 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-    Flaskr
-    ~~~~~~
-
-    A microblog example application written as Flask tutorial with
-    Flask and sqlite3.
-
-    :copyright: (c) 2015 by Armin Ronacher.
-    :license: BSD, see LICENSE for more details.
-"""
-
 from sqlite3 import dbapi2 as sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
 
 
 # create our blueprint :)
-bp = Blueprint('flaskr', __name__)
+bp = Blueprint('jingway', __name__)
 
 
 def connect_db():
@@ -43,42 +31,42 @@ def get_db():
 
 
 @bp.route('/')
-def show_entries():
+def show_users():
     db = get_db()
-    cur = db.execute('select title, text from entries order by id desc')
-    entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    cur = db.execute('select username, role, password from users order by id desc')
+    users = cur.fetchall()
+    return render_template('show_users.html', users=users)
 
 
 @bp.route('/add', methods=['POST'])
-def add_entry():
+def add_user():
     if not session.get('logged_in'):
         abort(401)
     db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
+    db.execute('insert into users (username, role, password) values (?, ?, ?)',
+               [request.form['username'], request.form['role'], request.form['password']])
     db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('flaskr.show_entries'))
+    flash('您已成功新建用户。')
+    return redirect(url_for('jingway.show_users'))
 
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != current_app.config['USERNAME']:
-            error = 'Invalid username'
-        elif request.form['password'] != current_app.config['PASSWORD']:
-            error = 'Invalid password'
+        if request.form['admin'] != current_app.config['USERNAME']:
+            error = '对不起，不存在该管理员。'
+        elif request.form['passwd'] != current_app.config['PASSWORD']:
+            error = '对不起，您的密码错误。'
         else:
             session['logged_in'] = True
-            flash('You were logged in')
-            return redirect(url_for('flaskr.show_entries'))
+            flash('恭喜！您已登陆。')
+            return redirect(url_for('jingway.show_users'))
     return render_template('login.html', error=error)
 
 
 @bp.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    flash('You were logged out')
-    return redirect(url_for('flaskr.show_entries'))
+    flash('您已成功登出。')
+    return redirect(url_for('jingway.show_users'))

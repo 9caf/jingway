@@ -1,6 +1,7 @@
-drop table if exists entries;
-create table entries (
+drop table if exists users;
+create table users (
   id integer primary key autoincrement,
-  title text not null,
-  'text' text not null
+  username text not null,
+  role text not null,
+  password text not null
 );
