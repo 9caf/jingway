@@ -6,19 +6,20 @@ from blueprints.users import bp
 def create_app(config=None):
     app = Flask('jingway')
     app.config.from_pyfile('config.cfg')
-    init_db(app)
+    register_db(app)
     register_blueprints(app)
+    login_manager = LoginManager()
     return app
 
 
-def init_db(app):
+def register_db(app):
     import sys
     sys.path.append(app.root_path) 
     from models import db
     db.init_app(app)
 
 
-def create_db():
+def init_db():
     app = Flask('jingway')
     app.config.from_pyfile('config.cfg')
 
