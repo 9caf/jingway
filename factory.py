@@ -1,21 +1,26 @@
-import os
 from flask import Flask, g
 from werkzeug.utils import find_modules, import_string
-from blueprints.users import init_db
-
+from blueprints.users import bp
 
 def create_app(config=None):
     app = Flask('jingway')
 
     app.config.update(dict(
-        DATABASE=os.path.join(app.root_path, 'jingway.db'),
         DEBUG=True,
-        SECRET_KEY=b'_5#y2L"F4Q8z\n\xec]/',
+        SECRET_KEY='12345678',
         USERNAME='admin',
         PASSWORD='admin'
     ))
     app.config.update(config or {})
     app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
+    import sys
+    sys.path.append(app.root_path) 
+    from models import db
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///var/services/homes/jingwei/jingway/jingway.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    db.init_app(app)
 
     register_blueprints(app)
     register_cli(app)
@@ -40,7 +45,7 @@ def register_cli(app):
     @app.cli.command('initdb')
     def initdb_command():
         """Creates the database tables."""
-        init_db()
+        db.create_all(app=create_app())
         print('Initialized the database.')
 
 

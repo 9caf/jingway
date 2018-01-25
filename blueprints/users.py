@@ -1,40 +1,16 @@
 from sqlite3 import dbapi2 as sqlite3
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
+from models import db, Users
 
 
 # create our blueprint :)
 bp = Blueprint('jingway', __name__)
 
 
-def connect_db():
-    """Connects to the specific database."""
-    rv = sqlite3.connect(current_app.config['DATABASE'])
-    rv.row_factory = sqlite3.Row
-    return rv
-
-def init_db():
-    """Initializes the database."""
-    db = get_db()
-    with current_app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-
-
-def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context.
-    """
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
-
-
 @bp.route('/')
 def show_users():
-    db = get_db()
-    cur = db.execute('select username, role, password from users order by id desc')
-    users = cur.fetchall()
+    users = Users.query.order_by(Users.id).all()
     return render_template('show_users.html', users=users)
 
 
@@ -42,10 +18,13 @@ def show_users():
 def add_user():
     if not session.get('logged_in'):
         abort(401)
-    db = get_db()
-    db.execute('insert into users (username, role, password) values (?, ?, ?)',
-               [request.form['username'], request.form['role'], request.form['password']])
-    db.commit()
+    user = Users(
+        username = request.form['username'],
+        role = request.form['role'],
+        password = request.form['password']
+        )
+    db.session.add(user)
+    db.session.commit()
     flash('您已成功新建用户。')
     return redirect(url_for('jingway.show_users'))
 
