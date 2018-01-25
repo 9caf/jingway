@@ -4,22 +4,12 @@ from blueprints.users import bp
 
 def create_app(config=None):
     app = Flask('jingway')
-
-    app.config.update(dict(
-        DEBUG=True,
-        SECRET_KEY='12345678',
-        USERNAME='admin',
-        PASSWORD='admin'
-    ))
-    app.config.update(config or {})
-    app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+    app.config.from_pyfile('config.cfg')
 
     import sys
     sys.path.append(app.root_path) 
     from models import db
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///var/services/homes/jingwei/jingway/jingway.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
 
     register_blueprints(app)
