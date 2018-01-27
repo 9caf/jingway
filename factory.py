@@ -8,7 +8,7 @@ def create_app(config=None):
     app.config.from_pyfile('config.cfg')
     register_db(app)
     register_blueprints(app)
-    login_manager = LoginManager()
+#    login_manager = LoginManager()
     return app
 
 
