@@ -14,7 +14,7 @@ def create_app(config=None):
 
 def register_db(app):
     import sys
-    sys.path.append(app.root_path) 
+    sys.path.append(app.root_path)
     from models import db
     db.init_app(app)
 
@@ -24,14 +24,14 @@ def init_db():
     app.config.from_pyfile('config.cfg')
 
     import sys
-    sys.path.append(app.root_path) 
+    sys.path.append(app.root_path)
     from models import db
     db.init_app(app)
 
     db.create_all(app=app)
     print('数据库创建成功！')
-   
-    
+
+
 
 def register_blueprints(app):
     """蓝图注册"""
